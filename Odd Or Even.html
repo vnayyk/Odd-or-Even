@@ -1,0 +1,2312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Odd or Even — Hand Cricket</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100dvh;
+    font-family: 'Montserrat', sans-serif;
+    background: #4a3d31;
+    color: white;
+    align-items: flex-start;
+    padding: 12px 0;
+    overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+}
+
+.game {
+    width: min(1000px, calc(100vw - 24px));
+    min-height: min(700px, calc(100dvh - 24px));
+    background: #171717;
+    border: 1px solid #30363d;
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 25px 80px rgba(0,0,0,.45);
+    position: relative;
+    overflow: hidden;
+}
+
+h1 {
+    text-align: center;
+    margin: 0;
+    font-size: 38px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #8b949e;
+    margin: 8px 0 25px;
+}
+
+.screen {
+    display: none;
+}
+
+.screen.active {
+    display: block;
+}
+
+#tossScreen.active,
+#choiceScreen.active {
+    min-height: clamp(360px, calc(100dvh - 190px), 500px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+button {
+    border: none;
+    font-family: inherit;
+    border-radius: 12px;
+    padding: 14px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .2s;
+}
+
+button:hover {
+    transform: translateY(-3px);
+}
+
+.primary {
+    background: white;
+    color: #111;
+}
+
+.dark {
+    background: #21262d;
+    color: white;
+    border: 1px solid #30363d;
+}
+
+/* TOSS */
+
+.toss-box {
+    text-align: center;
+    margin-top: 0;
+    position: relative;
+    top: -45px;
+}
+
+.coin {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 20px;
+    border: 6px solid #d99500;
+    border-radius: 50%;
+    color: #d99500;
+    font-size: 72px;
+    font-weight: 900;
+    line-height: 88px;
+    text-align: center;
+    background: #171717;
+    box-shadow: inset 0 0 0 3px #171717;
+    transform-style: preserve-3d;
+}
+
+.coin.tossing {
+    animation: coinToss 1.4s ease-in-out;
+}
+
+@keyframes coinToss {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(2160deg); }
+}
+
+.toss-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.toss-box h2,
+.choice-box h2 {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.toss-box p {
+    font-size: 18px;
+}
+
+.toss-buttons button {
+    padding: 16px 29px;
+}
+
+.toss-buttons button:disabled {
+    cursor: wait;
+    opacity: .55;
+    transform: none;
+}
+
+/* CHOICE */
+
+.choice-box {
+    text-align: center;
+    margin-top: 0;
+    position: relative;
+    top: -45px;
+}
+
+.choice-coin {
+    margin-bottom: 18px;
+}
+
+.choice-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.choice-buttons button {
+    width: 160px;
+    font-size: 20px;
+}
+
+/* MATCH */
+
+.match-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.badge {
+    background: #21262d;
+    border: 1px solid #30363d;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+.super-badge {
+    background: #6e40c9;
+    border-color: #8b5cf6;
+}
+
+.scoreboard {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin: 20px 0;
+}
+
+.score {
+    text-align: center;
+    position: relative;
+    min-width: 110px;
+}
+
+.score-name {
+    color: #8b949e;
+    font-size: 14px;
+}
+
+.score-number {
+    width: 94px;
+    height: 70px;
+    margin: 8px auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 18px;
+    font-size: 38px;
+    font-weight: 800;
+}
+
+.score-gain {
+    position: absolute;
+    top: 54px;
+    left: 50%;
+    color: #3fb950;
+    font-size: 22px;
+    font-weight: 900;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 8px);
+}
+
+.score:first-child .score-gain {
+    left: -24px;
+}
+
+.score:last-child .score-gain {
+    left: calc(100% + 24px);
+}
+
+.score-gain.show {
+    animation: scoreGain .9s ease-out forwards;
+}
+
+@keyframes scoreGain {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 18px) scale(.8);
+    }
+    20% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1.08);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -55px) scale(1);
+    }
+}
+
+/* TARGET */
+
+.target {
+    text-align: center;
+    color: #8b949e;
+    min-height: 24px;
+}
+
+.target strong {
+    color: white;
+}
+
+/* COMMENTARY */
+
+.commentary {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    min-height: 30px;
+    margin: 12px 0;
+}
+
+/* PRESSURE */
+
+.pressure-wrap {
+    width: 70%;
+    margin: 10px auto 25px;
+}
+
+.pressure-label {
+    display: flex;
+    justify-content: space-between;
+    color: #8b949e;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.pressure {
+    height: 8px;
+    background: #21262d;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.pressure-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #58a6ff, #f85149);
+    transition: .3s;
+}
+
+/* BATTLE */
+
+.battle-zone {
+    position: relative;
+    height: 250px;
+    margin-top: 10px;
+}
+
+.battle {
+    position: relative;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 8%;
+}
+
+.card {
+    width: 210px;
+    height: 180px;
+    background: white;
+    color: #111;
+    border-radius: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 15px 35px rgba(0,0,0,.3);
+}
+
+.card-name {
+    font-size: 16px;
+    color: #555;
+}
+
+.card-number {
+    font-size: 75px;
+    font-weight: 900;
+    line-height: 1;
+    margin-top: 10px;
+}
+
+.card.green {
+    background: #2ea043;
+    color: white;
+}
+
+.card.red {
+    background: #f85149;
+    color: white;
+}
+
+.card.green .card-name,
+.card.red .card-name {
+    color: white;
+}
+
+/*
+    IMPORTANT:
+    The winner gets z-index BEFORE the animation begins.
+    Therefore it physically passes in front.
+*/
+
+.battle.slide .you-card {
+    animation: youMove 0.5s ease-in-out forwards;
+}
+
+.battle.slide .cpu-card {
+    animation: cpuMove 0.5s ease-in-out forwards;
+}
+
+.battle.return .you-card {
+    animation: youReturn 0.5s ease-in-out forwards;
+}
+
+.battle.return .cpu-card {
+    animation: cpuReturn 0.5s ease-in-out forwards;
+}
+
+.yfront .you-card {
+    z-index: 10;
+}
+
+.cfront .cpu-card {
+    z-index: 10;
+}
+
+@keyframes youMove {
+    from { transform: translateX(0); }
+    to { transform: translateX(170px); }
+}
+
+@keyframes cpuMove {
+    from { transform: translateX(0); }
+    to { transform: translateX(-170px); }
+}
+
+@keyframes youReturn {
+    from { transform: translateX(170px); }
+    to { transform: translateX(0); }
+}
+
+@keyframes cpuReturn {
+    from { transform: translateX(-170px); }
+    to { transform: translateX(0); }
+}
+
+/* BALLS */
+
+.ball-area {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.timer {
+    width: 60%;
+    margin: 0 auto 15px;
+    height: 8px;
+    background: #21262d;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.timer-bar {
+    width: 100%;
+    height: 100%;
+    background: white;
+}
+
+.number-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.number-buttons button {
+    width: 64px;
+    height: 64px;
+    padding: 0;
+    border-radius: 18px;
+    background: #21262d;
+    color: white;
+    border: 1px solid #30363d;
+    font-size: 20px;
+}
+
+.number-buttons button:hover {
+    background: white;
+    color: #111;
+}
+
+/* SUPER OVER */
+
+.super-over-title {
+    text-align: center;
+    font-size: 30px;
+    font-weight: 900;
+    margin-bottom: 5px;
+}
+
+.balls-left {
+    text-align: center;
+    font-size: 16px;
+    color: #8b949e;
+}
+
+.balls-left strong {
+    color: white;
+    font-size: 22px;
+}
+
+/* RESULT */
+
+.result-box {
+    text-align: center;
+    margin-top: 100px;
+    position: relative;
+    z-index: 2;
+}
+
+.fireworks {
+    display: none;
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.fireworks.show {
+    display: block;
+}
+
+.firework {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ffd166;
+    box-shadow:
+        0 -48px #ffd166,
+        34px -34px #ff6b6b,
+        48px 0 #4cc9f0,
+        34px 34px #80ed99,
+        0 48px #ffd166,
+        -34px 34px #ff9f1c,
+        -48px 0 #4cc9f0,
+        -34px -34px #ff6b6b;
+    animation: fireworkBurst 1.8s ease-out infinite;
+}
+
+.firework:nth-child(1) {
+    top: 30%;
+    left: 20%;
+}
+
+.firework:nth-child(2) {
+    top: 30%;
+    left: 80%;
+    animation-delay: .6s;
+}
+
+.firework:nth-child(3) {
+    top: 70%;
+    left: 50%;
+    animation-delay: 1.1s;
+}
+
+@keyframes fireworkBurst {
+    0% {
+        opacity: 0;
+        transform: scale(.15);
+    }
+    18% {
+        opacity: 1;
+    }
+    75% {
+        opacity: .9;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.35);
+    }
+}
+
+.result-title {
+    font-size: 50px;
+    font-weight: 900;
+    margin-bottom: 15px;
+}
+
+.final-score {
+    font-size: 22px;
+    color: white;
+    margin-bottom: 30px;
+}
+
+@media(max-width:700px) {
+
+    .game {
+        padding: 20px;
+    }
+
+    .card {
+        width: 145px;
+        height: 150px;
+    }
+
+    .card-number {
+        font-size: 55px;
+    }
+
+    @keyframes youMove {
+        from { transform: translateX(0); }
+        to { transform: translateX(80px); }
+    }
+
+    @keyframes cpuMove {
+        from { transform: translateX(0); }
+        to { transform: translateX(-80px); }
+    }
+
+    @keyframes youReturn {
+        from { transform: translateX(80px); }
+        to { transform: translateX(0); }
+    }
+
+    @keyframes cpuReturn {
+        from { transform: translateX(-80px); }
+        to { transform: translateX(0); }
+    }
+}
+
+@media(max-height:820px) {
+
+    .game {
+        padding: 18px;
+    }
+
+    h1 {
+        font-size: 32px;
+    }
+
+    .subtitle {
+        margin: 4px 0 14px;
+    }
+
+    .toss-box {
+        margin-top: 30px;
+    }
+
+    .choice-box {
+        margin-top: 40px;
+    }
+
+    .scoreboard {
+        margin: 10px 0;
+    }
+
+    .pressure-wrap {
+        margin: 6px auto 14px;
+    }
+
+    .battle-zone {
+        height: 200px;
+    }
+
+    .card {
+        width: min(180px, 34vw);
+        height: 150px;
+    }
+
+    .card-number {
+        font-size: 60px;
+    }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+<h1>ODD OR EVEN</h1>
+<div class="subtitle">Hand Cricket</div>
+
+<!-- TOSS SCREEN -->
+
+<div id="tossScreen" class="screen active">
+
+    <div class="toss-box">
+
+        <div class="coin" aria-label="Coin">$</div>
+
+        <h2>It's Toss Time!</h2>
+
+        <p>Choose Heads or Tails</p>
+
+        <div class="toss-buttons">
+
+            <button class="primary" onclick="toss('Heads')">
+                HEADS
+            </button>
+
+            <button class="dark" onclick="toss('Tails')">
+                TAILS
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- CHOICE SCREEN -->
+
+<div id="choiceScreen" class="screen">
+
+    <div class="choice-box">
+
+        <div class="coin choice-coin" aria-label="Coin">$</div>
+
+        <h2 id="tossMessage"></h2>
+
+        <p id="choiceInstruction"></p>
+
+        <div class="choice-buttons">
+
+            <button class="primary" onclick="chooseRole('bat')">
+                🏏 BAT
+            </button>
+
+            <button class="dark" onclick="chooseRole('bowl')">
+                🎯 BOWL
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- MATCH SCREEN -->
+
+<div id="matchScreen" class="screen">
+
+    <div class="match-top">
+
+        <div id="inningsBadge" class="badge">
+            1ST INNINGS
+        </div>
+
+        <div id="superBadge" class="badge super-badge" style="display:none">
+            🔥 SUPER OVER
+        </div>
+
+    </div>
+
+    <div id="superTitle" class="super-over-title" style="display:none">
+        🔥 SUPER OVER 🔥
+    </div>
+
+    <div id="ballsLeft" class="balls-left" style="display:none">
+        Balls left: <strong id="ballsNumber">6</strong>
+    </div>
+
+
+    <div class="scoreboard">
+
+        <div class="score">
+
+            <div class="score-name">YOU</div>
+
+            <div id="youScore" class="score-number">
+                0
+            </div>
+
+            <div id="youGain" class="score-gain" aria-live="polite"></div>
+
+        </div>
+
+
+        <div class="score">
+
+            <div class="score-name">COMPUTER</div>
+
+            <div id="cpuScore" class="score-number">
+                0
+            </div>
+
+            <div id="cpuGain" class="score-gain" aria-live="polite"></div>
+
+        </div>
+
+    </div>
+
+
+    <div id="target" class="target"></div>
+
+    <div id="commentary" class="commentary">
+        Choose your number!
+    </div>
+
+
+    <div class="pressure-wrap">
+
+        <div class="pressure-label">
+            <span>PRESSURE</span>
+            <span id="pressureText">0%</span>
+        </div>
+
+        <div class="pressure">
+            <div id="pressureBar" class="pressure-bar"></div>
+        </div>
+
+    </div>
+
+
+    <div class="battle-zone">
+
+        <div id="battle" class="battle">
+
+            <div id="youCard" class="card you-card">
+
+                <div class="card-name">
+                    YOU
+                </div>
+
+                <div id="youNumber" class="card-number">
+                    ?
+                </div>
+
+            </div>
+
+
+            <div id="cpuCard" class="card cpu-card">
+
+                <div class="card-name">
+                    COMPUTER
+                </div>
+
+                <div id="cpuNumber" class="card-number">
+                    ?
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="ball-area">
+
+        <div class="timer">
+
+            <div id="timerBar" class="timer-bar"></div>
+
+        </div>
+
+
+        <div id="numberButtons" class="number-buttons">
+
+            <button onclick="play(1)">1</button>
+            <button onclick="play(2)">2</button>
+            <button onclick="play(3)">3</button>
+            <button onclick="play(4)">4</button>
+            <button onclick="play(5)">5</button>
+            <button onclick="play(6)">6</button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- RESULT SCREEN -->
+
+<div id="resultScreen" class="screen">
+
+    <div id="fireworks" class="fireworks" aria-hidden="true">
+        <span class="firework"></span>
+        <span class="firework"></span>
+        <span class="firework"></span>
+    </div>
+
+    <div class="result-box">
+
+        <div id="resultTitle" class="result-title">
+            🏆 YOU WIN!
+        </div>
+
+        <div id="finalScore" class="final-score"></div>
+
+        <button class="primary" onclick="restart()">
+            PLAY AGAIN
+        </button>
+
+    </div>
+
+</div>
+
+
+</div>
+
+
+<script>
+
+/* =========================
+   GAME STATE
+========================= */
+
+let tossChoice = null;
+let tossWinner = null;
+
+let firstBatter = null;
+let batter = null;
+
+let innings = 1;
+
+let youScore = 0;
+let cpuScore = 0;
+
+let target = null;
+
+let timerInterval = null;
+let turnLocked = false;
+let tossInProgress = false;
+
+
+/* SUPER OVER STATE */
+
+let superOver = false;
+
+let superOverNumber = 0;
+
+let superBall = 0;
+
+let superYouScore = 0;
+let superCpuScore = 0;
+
+let superFirstBatter = null;
+let superBatter = null;
+
+
+/* =========================
+   RANDOM
+========================= */
+
+function randomNumber() {
+
+    return Math.floor(Math.random() * 6) + 1;
+
+}
+
+
+/* =========================
+   SCREEN
+========================= */
+
+function showScreen(id) {
+
+    document.querySelectorAll('.screen')
+        .forEach(screen => screen.classList.remove('active'));
+
+    document.getElementById(id)
+        .classList.add('active');
+
+}
+
+
+/* =========================
+   TOSS
+========================= */
+
+function animateCoinToss(onComplete) {
+
+    if (tossInProgress) return;
+
+    tossInProgress = true;
+
+    const coin = document.querySelector('.coin');
+    const buttons = document.querySelectorAll('#tossScreen .toss-buttons button');
+
+    buttons.forEach(button => button.disabled = true);
+    coin.classList.remove('tossing');
+    void coin.offsetWidth;
+    coin.classList.add('tossing');
+
+    setTimeout(() => {
+
+        coin.classList.remove('tossing');
+
+        setTimeout(() => {
+
+            buttons.forEach(button => button.disabled = false);
+            tossInProgress = false;
+            onComplete();
+
+        }, 300);
+
+    }, 1400);
+
+}
+
+function toss(choice) {
+
+    tossChoice = choice;
+
+    const result =
+        Math.random() < 0.5
+        ? 'Heads'
+        : 'Tails';
+
+    animateCoinToss(() => {
+
+        if (choice === result) {
+
+            tossWinner = 'you';
+
+            document.getElementById('tossScreen')
+                .querySelector('.toss-buttons').style.display = 'flex';
+
+            document.getElementById('tossMessage').innerText =
+                `🪙 ${result}! You won the toss!`;
+
+            document.getElementById('choiceInstruction').innerText =
+                'You choose: BAT or BOWL';
+
+            showScreen('choiceScreen');
+
+        } else {
+
+            tossWinner = 'cpu';
+
+            document.getElementById('tossMessage').innerText =
+                `🪙 ${result}! Computer won the toss!`;
+
+            const computerChoice =
+                Math.random() < 0.5
+                ? 'bat'
+                : 'bowl';
+
+            firstBatter =
+                computerChoice === 'bat'
+                ? 'cpu'
+                : 'you';
+
+            batter = firstBatter;
+
+            document.getElementById('tossScreen')
+                .querySelector('h2').innerText =
+                `🪙 ${result}! Computer won the toss!`;
+
+            document.getElementById('tossScreen')
+                .querySelector('p').innerText =
+                `Computer chose to ${computerChoice.toUpperCase()}!`;
+
+            document.getElementById('tossScreen')
+                .querySelector('.toss-buttons').style.display = 'none';
+
+            document.getElementById('choiceScreen')
+                .classList.remove('active');
+
+            showScreen('tossScreen');
+
+            setTimeout(() => {
+
+                startNormalMatch();
+
+            }, 1500);
+
+            return;
+
+        }
+
+    });
+
+}
+
+
+/* =========================
+   ROLE CHOICE
+========================= */
+
+function chooseRole(role) {
+
+    if (tossWinner !== 'you') {
+
+        return;
+
+    }
+
+    if (role === 'bat') {
+
+        firstBatter = 'you';
+
+    } else {
+
+        firstBatter = 'cpu';
+
+    }
+
+    batter = firstBatter;
+
+    startNormalMatch();
+
+}
+
+
+/* =========================
+   START NORMAL MATCH
+========================= */
+
+function startNormalMatch() {
+
+    innings = 1;
+
+    youScore = 0;
+    cpuScore = 0;
+
+    target = null;
+
+    superOver = false;
+
+    document.getElementById('superBadge').style.display = 'none';
+    document.getElementById('superTitle').style.display = 'none';
+    document.getElementById('ballsLeft').style.display = 'none';
+
+    updateScores();
+
+    document.getElementById('inningsBadge').innerText =
+        '1ST INNINGS';
+
+    if (batter === 'you') {
+
+        setCommentary('🏏 You are batting first!');
+
+    } else {
+
+        setCommentary('🤖 Computer is batting first!');
+
+    }
+
+    showScreen('matchScreen');
+
+    startTurn();
+
+}
+
+
+/* =========================
+   START TURN
+========================= */
+
+function startTurn() {
+
+    turnLocked = false;
+
+    resetCards();
+
+    startTimer();
+
+}
+
+
+/* =========================
+   TIMER
+========================= */
+
+function startTimer() {
+
+    clearInterval(timerInterval);
+
+    const duration = 4000;
+
+    const start = performance.now();
+
+    timerInterval = setInterval(() => {
+
+        const elapsed = performance.now() - start;
+
+        const remaining =
+            Math.max(0, 1 - elapsed / duration);
+
+        document.getElementById('timerBar')
+            .style.width = `${remaining * 100}%`;
+
+        if (remaining <= 0) {
+
+            clearInterval(timerInterval);
+
+            if (!turnLocked) {
+
+                /*
+                    If player doesn't choose,
+                    automatically select a number.
+                */
+
+                play(randomNumber(), true);
+
+            }
+
+        }
+
+    }, 30);
+
+}
+
+
+/* =========================
+   PLAY BALL
+========================= */
+
+function play(playerNumber, automatic = false) {
+
+    if (turnLocked) return;
+
+    turnLocked = true;
+
+    clearInterval(timerInterval);
+
+    document.getElementById('timerBar')
+        .style.width = '0%';
+
+
+    const computerNumber = randomNumber();
+
+
+    document.getElementById('youNumber')
+        .innerText = playerNumber;
+
+    document.getElementById('cpuNumber')
+        .innerText = computerNumber;
+
+
+    if (superOver) {
+
+        playSuperOverBall(
+            playerNumber,
+            computerNumber
+        );
+
+        return;
+
+    }
+
+    /* =========================
+       NORMAL MATCH — YOU BATTING
+    ========================= */
+
+    if (batter === 'you') {
+
+        if (playerNumber === computerNumber) {
+
+            /*
+                COMPUTER WINS THE BATTLE.
+                Put computer IN FRONT BEFORE animation.
+            */
+
+            document.getElementById('youCard')
+                .className = 'card you-card';
+
+            document.getElementById('cpuCard')
+                .className = 'card cpu-card red';
+
+            animateBattle('cfront');
+
+            setCommentary('🔴 OUT! Computer got your wicket!');
+
+
+            setTimeout(() => {
+
+                if (innings === 1) {
+
+                    startSecondInnings();
+
+                } else {
+
+                    finishNormalMatch('cpu');
+
+                }
+
+            }, 1500);
+
+
+        } else {
+
+            /*
+                YOU SCORE.
+                Put YOU IN FRONT before animation.
+            */
+
+            document.getElementById('youCard')
+                .className = 'card you-card green';
+
+            document.getElementById('cpuCard')
+                .className = 'card cpu-card';
+
+            animateBattle('yfront');
+
+            youScore += playerNumber;
+
+            showScoreGain('you', playerNumber);
+
+            setCommentary(
+                getBattingComment(playerNumber)
+            );
+
+            updateScores();
+
+            setTimeout(() => {
+
+                /*
+                    Only the SECOND innings can finish
+                    by passing the target.
+                */
+
+                if (innings === 2 && youScore > target) {
+
+                    finishNormalMatch('you');
+
+                } else {
+
+                    returnBattle();
+
+                }
+
+            }, 1000);
+
+        }
+
+    }
+
+
+    /* =========================
+       NORMAL MATCH — CPU BATTING
+    ========================= */
+
+    else {
+
+        if (playerNumber === computerNumber) {
+
+            /*
+                YOU BOWLED THE COMPUTER.
+            */
+
+            document.getElementById('youCard')
+                .className = 'card you-card';
+
+            document.getElementById('cpuCard')
+                .className = 'card cpu-card red';
+
+            animateBattle('yfront');
+
+            setCommentary('🔥 WICKET! You got the computer!');
+
+
+            setTimeout(() => {
+
+                if (innings === 1) {
+
+                    startSecondInnings();
+
+                } else {
+
+                    finishNormalMatch('you');
+
+                }
+
+            }, 1500);
+
+
+        } else {
+
+            /*
+                COMPUTER SCORES.
+            */
+
+            document.getElementById('youCard')
+                .className = 'card you-card';
+
+            document.getElementById('cpuCard')
+                .className = 'card cpu-card';
+
+            animateBattle('cfront');
+
+            cpuScore += computerNumber;
+
+            showScoreGain('cpu', computerNumber);
+
+            setCommentary(
+                getComputerComment(computerNumber)
+            );
+
+            updateScores();
+
+
+            setTimeout(() => {
+
+                /*
+                    CRITICAL:
+                    Computer cannot win in first innings.
+
+                    The score only becomes a target.
+                */
+
+                if (innings === 2 && cpuScore > target) {
+
+                    finishNormalMatch('cpu');
+
+                } else {
+
+                    returnBattle();
+
+                }
+
+            }, 1000);
+
+        }
+
+    }
+
+}
+
+
+/* =========================
+   SECOND INNINGS
+========================= */
+
+function startSecondInnings() {
+
+    innings = 2;
+
+    target =
+        firstBatter === 'you'
+        ? youScore
+        : cpuScore;
+
+    batter =
+        firstBatter === 'you'
+        ? 'cpu'
+        : 'you';
+
+
+    document.getElementById('inningsBadge')
+        .innerText = '2ND INNINGS';
+
+    document.getElementById('target')
+        .innerHTML =
+        `🎯 Target: <strong>${target + 1}</strong>`;
+
+    if (batter === 'you') {
+
+        setCommentary(
+            `🔥 Your chase begins! Need ${target + 1} runs!`
+        );
+
+    } else {
+
+        setCommentary(
+            `🔥 Computer needs ${target + 1} runs!`
+        );
+
+    }
+
+
+    resetCards();
+
+    setTimeout(() => {
+
+        startTurn();
+
+    }, 1000);
+
+}
+
+
+/* =========================
+   NORMAL MATCH FINISH
+========================= */
+
+function finishNormalMatch(winner) {
+
+    /*
+        If scores are tied after innings,
+        GO TO SUPER OVER.
+    */
+
+    if (youScore === cpuScore) {
+
+        setCommentary('⚠️ MATCH TIED!');
+
+        setTimeout(() => {
+
+            startSuperOver();
+
+        }, 1500);
+
+        return;
+
+    }
+
+
+    finishGame(winner);
+
+}
+
+
+/* =========================
+   SUPER OVER
+========================= */
+
+function startSuperOver() {
+
+    superOver = true;
+
+    superOverNumber++;
+
+    superBall = 0;
+
+    superYouScore = 0;
+    superCpuScore = 0;
+
+    /*
+        Fresh toss.
+    */
+
+    tossChoice = null;
+    tossWinner = null;
+
+    document.getElementById('superBadge')
+        .style.display = 'block';
+
+    document.getElementById('superTitle')
+        .style.display = 'block';
+
+    document.getElementById('ballsLeft')
+        .style.display = 'block';
+
+    document.getElementById('inningsBadge')
+        .innerText =
+        `SUPER OVER #${superOverNumber}`;
+
+
+    document.getElementById('target')
+        .innerHTML = '🪙 Fresh toss for the Super Over!';
+
+
+    /*
+        Instead of going to normal toss screen,
+        create a dedicated Super Over toss.
+    */
+
+    showSuperToss();
+
+}
+
+
+/* =========================
+   SUPER TOSS
+========================= */
+
+function showSuperToss() {
+
+    document.getElementById('tossScreen')
+        .querySelector('.toss-buttons').style.display = 'flex';
+
+    document.getElementById('tossScreen')
+        .querySelector('h2').innerText =
+        `🔥 SUPER OVER #${superOverNumber} — TOSS`;
+
+    document.getElementById('tossScreen')
+        .querySelector('p').innerText =
+        'Choose Heads or Tails';
+
+    showScreen('tossScreen');
+
+}
+
+
+/* =========================
+   SUPER TOSS OVERRIDE
+========================= */
+
+const originalToss = toss;
+
+toss = function(choice) {
+
+    /*
+        If this is a normal match,
+        use the normal toss.
+    */
+
+    if (!superOver) {
+
+        originalToss(choice);
+
+        return;
+
+    }
+
+
+    const result =
+        Math.random() < 0.5
+        ? 'Heads'
+        : 'Tails';
+
+
+    animateCoinToss(() => {
+
+        if (choice === result) {
+
+            tossWinner = 'you';
+
+            document.getElementById('tossScreen')
+                .querySelector('.toss-buttons').style.display = 'flex';
+
+            document.getElementById('tossMessage').innerText =
+                `🪙 ${result}! You won the Super Over toss!`;
+
+            document.getElementById('choiceInstruction').innerText =
+                'Choose BAT or BOWL';
+
+            showScreen('choiceScreen');
+
+        } else {
+
+            tossWinner = 'cpu';
+
+            document.getElementById('tossMessage').innerText =
+                `🪙 ${result}! Computer won the Super Over toss!`;
+
+            const computerChoice =
+                Math.random() < 0.5
+                ? 'bat'
+                : 'bowl';
+
+            superFirstBatter =
+                computerChoice === 'bat'
+                ? 'cpu'
+                : 'you';
+
+            superBatter = superFirstBatter;
+            superBall = 0;
+
+            updateSuperOverUI();
+
+            document.getElementById('tossScreen')
+                .querySelector('h2').innerText =
+                `🪙 ${result}! Computer won the Super Over toss!`;
+
+            document.getElementById('tossScreen')
+                .querySelector('p').innerText =
+                `Computer chose to ${computerChoice.toUpperCase()}!`;
+
+            document.getElementById('tossScreen')
+                .querySelector('.toss-buttons').style.display = 'none';
+
+            showScreen('tossScreen');
+
+            setTimeout(() => {
+
+                showScreen('matchScreen');
+
+                setCommentary(
+                    superBatter === 'you'
+                    ? '🏏 You bat first in the Super Over!'
+                    : '🤖 Computer bats first in the Super Over!'
+                );
+
+                startTurn();
+
+            }, 1500);
+
+            return;
+
+        }
+
+    });
+
+};
+
+
+/* =========================
+   SUPER OVER ROLE
+========================= */
+
+const originalChooseRole = chooseRole;
+
+chooseRole = function(role) {
+
+    if (!superOver) {
+
+        originalChooseRole(role);
+
+        return;
+
+    }
+
+
+    if (tossWinner === 'you') {
+
+        superFirstBatter =
+            role === 'bat'
+            ? 'you'
+            : 'cpu';
+
+    } else {
+
+        superFirstBatter =
+            role === 'bat'
+            ? 'cpu'
+            : 'you';
+
+    }
+
+
+    superBatter = superFirstBatter;
+
+    superBall = 0;
+
+    updateSuperOverUI();
+
+    showScreen('matchScreen');
+
+    setCommentary(
+        superBatter === 'you'
+        ? '🏏 You bat first in the Super Over!'
+        : '🤖 Computer bats first in the Super Over!'
+    );
+
+    startTurn();
+
+};
+
+
+/* =========================
+   SUPER OVER BALL
+========================= */
+
+function playSuperOverBall(playerNumber, computerNumber) {
+
+    superBall++;
+
+    updateSuperOverUI();
+
+
+    /*
+        YOU BATTING
+    */
+
+    if (superBatter === 'you') {
+
+        if (playerNumber === computerNumber) {
+
+            document.getElementById('youCard')
+                .className = 'card you-card';
+
+            document.getElementById('cpuCard')
+                .className = 'card cpu-card red';
+
+            animateBattle('cfront');
+
+            setCommentary('🔴 OUT!');
+
+            setTimeout(() => {
+
+                endSuperInnings();
+
+            }, 1500);
+
+        } else {
+
+            superYouScore += playerNumber;
+
+            showScoreGain('you', playerNumber);
+
+            document.getElementById('youCard')
+                .className = 'card you-card green';
+
+            document.getElementById('cpuCard')
+                .className = 'card cpu-card';
+
+            animateBattle('yfront');
+
+            setCommentary(
+                `🔥 ${playerNumber} RUN${playerNumber > 1 ? 'S' : ''}!`
+            );
+
+            updateSuperOverUI();
+
+            setTimeout(() => {
+
+                if (
+                    superBatter !== superFirstBatter &&
+                    superYouScore > superCpuScore
+                ) {
+
+                    finishGame('you');
+
+                } else if (superBall >= 6) {
+
+                    endSuperInnings();
+
+                } else {
+
+                    returnBattle();
+
+                }
+
+            }, 1000);
+
+        }
+
+    }
+
+
+    /*
+        CPU BATTING
+    */
+
+    else {
+
+        if (playerNumber === computerNumber) {
+
+            superCpuScore += 0;
+
+            document.getElementById('youCard')
+                .className = 'card you-card';
+
+            document.getElementById('cpuCard')
+                .className = 'card cpu-card red';
+
+            animateBattle('yfront');
+
+            setCommentary('🔥 WICKET!');
+
+            setTimeout(() => {
+
+                endSuperInnings();
+
+            }, 1500);
+
+        } else {
+
+            superCpuScore += computerNumber;
+
+            showScoreGain('cpu', computerNumber);
+
+            document.getElementById('youCard')
+                .className = 'card you-card';
+
+            document.getElementById('cpuCard')
+                .className = 'card cpu-card';
+
+            animateBattle('cfront');
+
+            setCommentary(
+                `🤖 Computer scores ${computerNumber}!`
+            );
+
+            updateSuperOverUI();
+
+            setTimeout(() => {
+
+                if (
+                    superBatter !== superFirstBatter &&
+                    superCpuScore > superYouScore
+                ) {
+
+                    finishGame('cpu');
+
+                } else if (superBall >= 6) {
+
+                    endSuperInnings();
+
+                } else {
+
+                    returnBattle();
+
+                }
+
+            }, 1000);
+
+        }
+
+    }
+
+}
+
+
+/* =========================
+   END SUPER INNINGS
+========================= */
+
+function endSuperInnings() {
+
+    /*
+        First Super Over innings finished.
+    */
+
+    if (superBatter === superFirstBatter) {
+
+        superBatter =
+            superFirstBatter === 'you'
+            ? 'cpu'
+            : 'you';
+
+        superBall = 0;
+
+        let firstScore =
+            superFirstBatter === 'you'
+            ? superYouScore
+            : superCpuScore;
+
+        document.getElementById('target')
+            .innerHTML =
+            `🎯 Super Over target: <strong>${firstScore + 1}</strong>`;
+
+        setCommentary(
+            superBatter === 'you'
+            ? `🔥 You need ${firstScore + 1} to win!`
+            : `🔥 Computer needs ${firstScore + 1} to win!`
+        );
+
+        updateSuperOverUI();
+
+        resetCards();
+
+        setTimeout(() => {
+
+            startTurn();
+
+        }, 1200);
+
+        return;
+
+    }
+
+
+    /*
+        SECOND SUPER OVER INNINGS FINISHED.
+    */
+
+    if (superYouScore === superCpuScore) {
+
+        setCommentary(
+            '😱 SUPER OVER TIED! ANOTHER ONE!'
+        );
+
+        setTimeout(() => {
+
+            startSuperOver();
+
+        }, 1800);
+
+        return;
+
+    }
+
+
+    if (superYouScore > superCpuScore) {
+
+        finishGame('you');
+
+    } else {
+
+        finishGame('cpu');
+
+    }
+
+}
+
+
+/* =========================
+   SUPER UI
+========================= */
+
+function updateSuperOverUI() {
+
+    document.getElementById('youScore')
+        .innerText = superYouScore;
+
+    document.getElementById('cpuScore')
+        .innerText = superCpuScore;
+
+    document.getElementById('ballsNumber')
+        .innerText =
+        Math.max(0, 6 - superBall);
+
+    document.getElementById('ballsLeft')
+        .style.display = 'block';
+
+
+    /*
+        Pressure increases as balls disappear
+        and target gets closer.
+    */
+
+    let pressure =
+        Math.min(100, (superBall / 6) * 100);
+
+    document.getElementById('pressureBar')
+        .style.width = `${pressure}%`;
+
+    document.getElementById('pressureText')
+        .innerText = `${Math.round(pressure)}%`;
+
+}
+
+
+/* =========================
+   ANIMATION
+========================= */
+
+function animateBattle(front) {
+
+    const battle =
+        document.getElementById('battle');
+
+    battle.className =
+        `battle slide ${front}`;
+
+}
+
+
+/* =========================
+   RETURN CARDS
+========================= */
+
+function returnBattle() {
+
+    const battle =
+        document.getElementById('battle');
+
+    battle.className =
+        'battle return';
+
+    void battle.offsetWidth;
+
+    setTimeout(() => {
+
+        resetCards();
+
+        startTurn();
+
+    }, 500);
+
+}
+
+
+/* =========================
+   RESET CARDS
+========================= */
+
+function resetCards() {
+
+    const battle =
+        document.getElementById('battle');
+
+    battle.className = 'battle';
+
+
+    document.getElementById('youCard')
+        .className = 'card you-card';
+
+    document.getElementById('cpuCard')
+        .className = 'card cpu-card';
+
+    document.getElementById('youNumber')
+        .innerText = '?';
+
+    document.getElementById('cpuNumber')
+        .innerText = '?';
+
+}
+
+
+/* =========================
+   SCORES
+========================= */
+
+function showScoreGain(player, runs) {
+
+    const gain = document.getElementById(
+        player === 'you'
+        ? 'youGain'
+        : 'cpuGain'
+    );
+
+    gain.innerText = `+${runs}`;
+    gain.classList.remove('show');
+    void gain.offsetWidth;
+    gain.classList.add('show');
+
+    setTimeout(() => {
+
+        gain.classList.remove('show');
+
+    }, 900);
+
+}
+
+function updateScores() {
+
+    document.getElementById('youScore')
+        .innerText = youScore;
+
+    document.getElementById('cpuScore')
+        .innerText = cpuScore;
+
+
+    let pressure = 0;
+
+    if (innings === 2 && target !== null) {
+
+        const current =
+            batter === 'you'
+            ? youScore
+            : cpuScore;
+
+        pressure =
+            Math.min(
+                100,
+                Math.max(
+                    0,
+                    ((current / (target + 1)) * 100)
+                )
+            );
+
+    }
+
+    document.getElementById('pressureBar')
+        .style.width = `${pressure}%`;
+
+    document.getElementById('pressureText')
+        .innerText = `${Math.round(pressure)}%`;
+
+}
+
+
+/* =========================
+   COMMENTARY
+========================= */
+
+function setCommentary(text) {
+
+    document.getElementById('commentary')
+        .innerText = text;
+
+}
+
+
+function getBattingComment(n) {
+
+    const comments = {
+
+        1: '🏃 Single!',
+        2: '🏃🏃 Two runs!',
+        3: '🔥 Three runs!',
+        4: '🚀 FOUR!',
+        5: '🔥 FIVE!',
+        6: '💥 SIX!!!'
+
+    };
+
+    return comments[n];
+
+}
+
+
+function getComputerComment(n) {
+
+    const comments = {
+
+        1: '🤖 Computer takes 1',
+        2: '🤖 Two runs!',
+        3: '🤖 Three runs!',
+        4: '🤖 FOUR!',
+        5: '🤖 FIVE!',
+        6: '🤖 SIX!!!'
+
+    };
+
+    return comments[n];
+
+}
+
+
+/* =========================
+   FINISH GAME
+========================= */
+
+function finishGame(winner) {
+
+    clearInterval(timerInterval);
+
+    const fireworks = document.getElementById('fireworks');
+
+    fireworks.classList.toggle('show', winner === 'you');
+
+    showScreen('resultScreen');
+
+
+    if (winner === 'you') {
+
+        document.getElementById('resultTitle')
+            .innerText = '🏆 YOU WIN!';
+
+    } else {
+
+        document.getElementById('resultTitle')
+            .innerText = '🤖 COMPUTER WINS!';
+
+    }
+
+
+    if (superOver) {
+
+        document.getElementById('finalScore')
+            .innerText =
+            `Super Over #${superOverNumber} — You ${superYouScore} : ${superCpuScore} Computer`;
+
+    } else {
+
+        document.getElementById('finalScore')
+            .innerText =
+            `Final Score — You ${youScore} : ${cpuScore} Computer`;
+
+    }
+
+}
+
+
+/* =========================
+   RESTART
+========================= */
+
+function restart() {
+
+    clearInterval(timerInterval);
+
+    document.getElementById('fireworks')
+        .classList.remove('show');
+
+    tossChoice = null;
+    tossWinner = null;
+
+    firstBatter = null;
+    batter = null;
+
+    innings = 1;
+
+    youScore = 0;
+    cpuScore = 0;
+
+    target = null;
+
+    superOver = false;
+    superOverNumber = 0;
+
+    superBall = 0;
+
+    superYouScore = 0;
+    superCpuScore = 0;
+
+    superFirstBatter = null;
+    superBatter = null;
+
+    document.getElementById('superBadge')
+        .style.display = 'none';
+
+    document.getElementById('superTitle')
+        .style.display = 'none';
+
+    document.getElementById('ballsLeft')
+        .style.display = 'none';
+
+    document.getElementById('target')
+        .innerHTML = '';
+
+    document.getElementById('tossScreen')
+        .querySelector('h2').innerText =
+        "It's Toss Time!";
+
+    document.getElementById('tossScreen')
+        .querySelector('p').innerText =
+        'Choose Heads or Tails';
+
+    document.getElementById('tossScreen')
+        .querySelector('.toss-buttons').style.display = 'flex';
+
+    resetCards();
+
+    showScreen('tossScreen');
+
+}
+
+
+document.addEventListener('keydown', event => {
+
+    if (
+        event.repeat ||
+        !document.getElementById('matchScreen').classList.contains('active') ||
+        !/^[1-6]$/.test(event.key)
+    ) {
+
+        return;
+
+    }
+
+    play(Number(event.key));
+
+});
+
+</script>
+
+</body>
+</html>
